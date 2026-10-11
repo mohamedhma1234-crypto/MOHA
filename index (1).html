@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caisse Supérette</title>
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#16241f;--mute:#5d6f67;--line:#d8e0dc;--acc:#1c7a4d;--accInk:#fff;--warn:#b4531a;--bad:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a16;--card:#17241f;--ink:#e8f1ed;--mute:#9bb0a6;--line:#2a3b34;--acc:#3fbf85;--accInk:#08140f;--warn:#e08a4f;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#101a16;--card:#17241f;--ink:#e8f1ed;--mute:#9bb0a6;--line:#2a3b34;--acc:#3fbf85;--accInk:#08140f;--warn:#e08a4f;--bad:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+header{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+header h1{font-size:18px;margin:0 auto 0 0}
+nav button{font:inherit;padding:9px 16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--acc);color:var(--accInk);border-color:var(--acc);font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+input,select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0}
+button.p,button.s{font:inherit;padding:10px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--acc)}
+button.p{background:var(--acc);color:var(--accInk);font-weight:600}
+button.s{background:transparent;color:var(--acc)}
+button.x{background:none;border:none;color:var(--bad);cursor:pointer;font:inherit}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.scan{width:100%;font-size:22px;padding:14px 16px}
+.msg{min-height:24px;margin:8px 0 0;color:var(--mute)}.msg.err{color:var(--bad)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:600;font-size:14px}
+.total{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.total b{font-size:34px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.grid label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mute)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.kpi small{color:var(--mute)}.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.pos{color:var(--acc)}.neg{color:var(--bad)}
+.q button{width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;cursor:pointer}
+[hidden]{display:none!important}
+.pos-top{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:12px;margin-bottom:12px}
+.side{display:grid;gap:8px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.box small{display:block;color:var(--mute);font-size:13px}.box b{font-size:20px;font-variant-numeric:tabular-nums}
+.box input{width:100%;padding:6px 8px;font-size:18px}
+.disp{background:#1b1010;border:3px solid #6b2a2a;border-radius:8px;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;text-align:right}
+.disp small{color:#e9a4a4}.disp b{color:#ff4b3e;font-size:clamp(34px,8vw,64px);font-variant-numeric:tabular-nums;line-height:1.1}
+.entry{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.entry .scan{flex:1;min-width:200px;width:auto}
+.entry label{display:flex;align-items:center;gap:6px}.entry label input{width:80px}
+.mid{display:grid;grid-template-columns:1fr 150px;gap:12px;margin:12px 0}
+.mid .tbl{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:220px;max-height:340px;overflow:auto}
+tr.sel td{background:#bcd9f5;color:#10202e}
+tbody tr[data-s]{cursor:pointer}
+.keys{display:grid;gap:8px;align-content:start}
+.keys button{font:inherit;font-weight:600;padding:14px 8px;border-radius:8px;border:none;cursor:pointer;color:#fff}
+.k1{background:#2e7d32}.k2{background:#9a5b00}.k3{background:#b3261e}.k4{background:#5b6b75}.k5{background:#1565c0;font-size:18px}
+.quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.quick button{background:#f5d33f;color:#2a2200;border:1px solid #c9a800;border-radius:8px;padding:12px 8px;font:inherit;font-weight:700;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.quick small{font-weight:600}
+.cam{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:12px;max-width:420px}.cam button{margin-top:8px}
+#ph{position:fixed;inset:0;z-index:50;background:var(--bg);padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));overflow:auto}#ph h2{margin:0 0 8px;font-size:20px}#ph button{margin-top:12px}#phreader{width:100%;max-width:420px}
+@media (max-width:640px){.pos-top,.mid{grid-template-columns:1fr}.keys{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>Caisse Supérette</h1>
+  <nav role="tablist">
+    <button role="tab" data-t="caisse" aria-selected="true">Caisse</button>
+    <button role="tab" data-t="produits" aria-selected="false">Produits</button>
+    <button role="tab" data-t="rapports" aria-selected="false">Rapports</button>
+  </nav>
+</header>
+<main>
+<section id="caisse">
+ <div class="pos-top">
+  <div class="side">
+   <div class="box"><small>Articles</small><b id="nb">0</b></div>
+   <div class="box"><small>Montant reçu (DA)</small><input id="recu" type="number" min="0" step="any"></div>
+   <div class="box"><small>Rendu</small><b id="rendu">0 DA</b></div>
+  </div>
+  <div class="disp"><small>Total à payer</small><b id="total">0 DA</b></div>
+ </div>
+ <div class="entry">
+  <input id="scan" class="scan" placeholder="Scannez un code-barres ou tapez-le, puis Entrée" autocomplete="off" inputmode="numeric">
+  <label>Quantité <input id="qty" type="number" min="1" value="1"></label>
+  <button id="camBtn" class="p" type="button">Scanner avec la caméra</button>
+  <button id="linkBtn" class="s" type="button">Relier un téléphone</button>
+  <button id="phBtn" class="s" type="button">Mode téléphone</button>
+ </div>
+ <p id="msg" class="msg" role="status"></p>
+ <button id="addUnknown" class="s" hidden>Ajouter ce produit</button>
+ <div id="cam" class="cam" hidden><div id="reader"></div><button id="camClose" class="s" type="button">Fermer la caméra</button></div>
+ <div id="link" class="cam" hidden><b>Relier un téléphone</b><p style="margin:6px 0">Sur le téléphone, ouvrez ce site, appuyez sur « Mode téléphone » et saisissez ce code :</p><div id="lcode" style="font-size:36px;font-weight:700;letter-spacing:4px">······</div><p class="msg" id="llink" style="word-break:break-all"></p><p id="lst" class="msg">Création du code…</p><button id="lClose" class="s" type="button">Masquer</button></div>
+ <div id="ph" hidden><h2>Mode téléphone</h2><p id="phmsg" class="msg" role="status"></p><div id="phreader"></div><button id="phClose" class="p" type="button">Arrêter et fermer</button></div>
+ <div class="mid">
+  <div class="tbl"><table><thead><tr><th>N°</th><th>Code</th><th>Désignation</th><th>P.U</th><th>Qté</th><th>Montant</th></tr></thead><tbody id="cart"></tbody></table>
+   <p id="emptyCart" class="msg" style="padding:0 10px">Le panier est vide. Scannez un article pour commencer.</p></div>
+  <div class="keys">
+   <button id="kPlus" class="k1">+ Quantité</button>
+   <button id="kMinus" class="k2">− Quantité</button>
+   <button id="kDel" class="k3">Supprimer la ligne</button>
+   <button id="clear" class="k4">Vider le panier</button>
+   <button id="pay" class="k5">Encaisser</button>
+  </div>
+ </div>
+ <div class="quick" id="quick"></div>
+</section>
+
+<section id="produits" hidden>
+  <div class="card">
+    <h2 style="margin-top:0;font-size:18px" id="formTitle">Ajouter un produit</h2>
+    <div class="grid">
+      <label>Code-barres<input id="fCode" inputmode="numeric"></label>
+      <label>Nom du produit<input id="fName"></label>
+      <label>Prix d'achat (DA)<input id="fBuy" type="number" min="0" step="any"></label>
+      <label>Prix de vente (DA)<input id="fSell" type="number" min="0" step="any"></label>
+      <label>Stock<input id="fStock" type="number" min="0" step="1" value="0"></label>
+    </div>
+    <p id="fMsg" class="msg" role="status"></p>
+    <button id="fSave" class="p">Enregistrer le produit</button>
+  </div>
+  <div class="card tw">
+    <table><thead><tr><th>Produit</th><th>Code</th><th>Achat</th><th>Vente</th><th>Marge</th><th>Stock</th><th></th></tr></thead><tbody id="plist"></tbody></table>
+    <p id="emptyP" class="msg">Aucun produit. Remplissez le formulaire ci-dessus pour créer le premier.</p>
+  </div>
+</section>
+
+<section id="rapports" hidden>
+  <div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <label for="period">Période</label>
+    <select id="period"><option value="1">Aujourd'hui</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option><option value="0">Tout</option></select>
+    <button id="reset" class="s" style="margin-left:auto">Effacer l'historique des ventes</button>
+  </div>
+  <div class="kpi" id="kpi"></div>
+  <div class="card tw">
+    <table><thead><tr><th>Produit</th><th>Qté vendue</th><th>Chiffre d'affaires</th><th>Coût d'achat</th><th>Bénéfice</th><th>Marge</th></tr></thead><tbody id="rep"></tbody></table>
+    <p id="emptyR" class="msg">Aucune vente sur cette période.</p>
+  </div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('fr-FR')+' DA';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let P={},S=[],cart={};
+try{P=JSON.parse(localStorage.getItem('cs_p')||'{}');S=JSON.parse(localStorage.getItem('cs_s')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('cs_p',JSON.stringify(P));localStorage.setItem('cs_s',JSON.stringify(S))}catch(e){}};
+let unknown='';
+
+// onglets
+function tab(t){['caisse','produits','rapports'].forEach(x=>{$(x).hidden=x!==t});
+ document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+ if(t==='caisse'){drawQuick();$('scan').focus()}if(t==='produits')drawP();if(t==='rapports')drawR()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+
+// caisse
+let sel='',T=0;
+function say(t,err){$('msg').textContent=t;$('msg').className='msg'+(err?' err':'')}
+function add(c,q){if(!c||!P[c])return;cart[c]=(cart[c]||0)+q;if(cart[c]<=0)delete cart[c];sel=cart[c]?c:'';drawCart()}
+function rendu(){const r=parseFloat($('recu').value)||0;$('rendu').textContent=!r?'0 DA':r<T?'Il manque '+fmt(T-r):fmt(r-T)}
+function drawCart(){
+ const codes=Object.keys(cart);let tot=0,nb=0;
+ $('cart').innerHTML=codes.map((c,i)=>{const p=P[c],q=cart[c];tot+=p.sell*q;nb+=q;
+  return `<tr data-s="${esc(c)}" class="${c===sel?'sel':''}"><td>${i+1}</td><td>${esc(c)}</td><td style="text-align:left">${esc(p.name)}</td><td>${fmt(p.sell)}</td><td>${q}</td><td>${fmt(p.sell*q)}</td></tr>`}).join('');
+ T=tot;$('emptyCart').hidden=codes.length>0;$('total').textContent=fmt(tot);$('nb').textContent=nb;rendu()}
+function drawQuick(){
+ const n={};S.forEach(x=>n[x.c]=(n[x.c]||0)+x.q);
+ const k=Object.keys(P).sort((a,b)=>(n[b]||0)-(n[a]||0)).slice(0,12);
+ $('quick').innerHTML=k.map(c=>`<button data-q="${esc(c)}">${esc(P[c].name)}<small>${fmt(P[c].sell)}</small></button>`).join('')}
+$('quick').onclick=e=>{const b=e.target.closest('button[data-q]');if(b){add(b.dataset.q,1);say(P[b.dataset.q].name+' ajouté.')}};
+$('cart').onclick=e=>{const r=e.target.closest('tr[data-s]');if(r){sel=r.dataset.s;drawCart()}};
+$('recu').oninput=rendu;
+$('kPlus').onclick=()=>add(sel,1);$('kMinus').onclick=()=>add(sel,-1);
+$('kDel').onclick=()=>{if(sel){delete cart[sel];sel='';drawCart()}};
+$('scan').onkeydown=e=>{if(e.key!=='Enter')return;
+ const c=e.target.value.trim();e.target.value='';if(!c)return;
+ $('addUnknown').hidden=true;
+ if(!P[c]){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
+ const q=Math.max(1,parseInt($('qty').value)||1);$('qty').value=1;
+ add(c,q);say(P[c].name+' ajouté.')};
+$('addUnknown').onclick=()=>{tab('produits');$('fCode').value=unknown;$('fName').focus()};
+$('clear').onclick=()=>{cart={};sel='';drawCart();$('scan').focus()};
+$('pay').onclick=()=>{const codes=Object.keys(cart);if(!codes.length){say('Le panier est vide.',true);return}
+ const t=Date.now();let tot=0;
+ codes.forEach(c=>{const p=P[c],q=cart[c];tot+=p.sell*q;p.stock-=q;S.push({t,c,n:p.name,q,b:p.buy,s:p.sell})});
+ save();cart={};sel='';$('recu').value='';drawCart();drawQuick();say('Vente enregistrée : '+fmt(tot)+'.');$('scan').focus()};
+
+// produits
+let editing='';
+function drawP(){const k=Object.keys(P);$('emptyP').hidden=k.length>0;
+ $('plist').innerHTML=k.map(c=>{const p=P[c],m=p.sell-p.buy;
+  return `<tr><td>${esc(p.name)}</td><td>${esc(c)}</td><td>${fmt(p.buy)}</td><td>${fmt(p.sell)}</td><td class="${m<0?'neg':'pos'}">${fmt(m)}</td><td class="${p.stock<=0?'neg':''}">${p.stock}</td><td><button class="s" data-e="${esc(c)}">Modifier</button> <button class="x" data-d="${esc(c)}">Supprimer</button></td></tr>`}).join('')}
+$('plist').onclick=e=>{const d=e.target.dataset;
+ if(d.e){const p=P[d.e];editing=d.e;$('fCode').value=d.e;$('fName').value=p.name;$('fBuy').value=p.buy;$('fSell').value=p.sell;$('fStock').value=p.stock;$('formTitle').textContent='Modifier le produit';$('fName').focus()}
+ if(d.d&&confirm('Supprimer ce produit ? L\'historique des ventes est conservé.')){delete P[d.d];delete cart[d.d];save();drawP()}};
+$('fSave').onclick=()=>{const c=$('fCode').value.trim(),n=$('fName').value.trim(),b=parseFloat($('fBuy').value),s=parseFloat($('fSell').value),st=parseInt($('fStock').value)||0;
+ const m=$('fMsg');m.className='msg err';
+ if(!c||!n){m.textContent='Saisissez le code-barres et le nom du produit.';return}
+ if(isNaN(b)||isNaN(s)){m.textContent="Saisissez le prix d'achat et le prix de vente.";return}
+ if(P[c]&&editing!==c){m.textContent='Ce code existe déjà. Cliquez sur Modifier dans la liste pour le changer.';return}
+ if(editing&&editing!==c)delete P[editing];
+ P[c]={name:n,buy:b,sell:s,stock:st};save();editing='';
+ ['fCode','fName','fBuy','fSell'].forEach(i=>$(i).value='');$('fStock').value=0;$('formTitle').textContent='Ajouter un produit';
+ m.className='msg';m.textContent='Produit enregistré.';drawP()};
+
+// rapports
+function drawR(){
+ const d=+$('period').value,from=d?(d===1?new Date().setHours(0,0,0,0):Date.now()-d*864e5):0;
+ const agg={};let ca=0,cost=0;
+ S.filter(x=>x.t>=from).forEach(x=>{const a=agg[x.c]||(agg[x.c]={n:x.n,q:0,ca:0,co:0});a.q+=x.q;a.ca+=x.s*x.q;a.co+=x.b*x.q;ca+=x.s*x.q;cost+=x.b*x.q});
+ const rows=Object.values(agg).sort((a,b)=>(b.ca-b.co)-(a.ca-a.co)),ben=ca-cost;
+ $('kpi').innerHTML=`<div><small>Chiffre d'affaires</small><b>${fmt(ca)}</b></div><div><small>Coût d'achat</small><b>${fmt(cost)}</b></div><div><small>Bénéfice</small><b class="${ben<0?'neg':'pos'}">${fmt(ben)}</b></div><div><small>Marge</small><b>${ca?Math.round(ben/ca*1000)/10:0} %</b></div>`;
+ $('emptyR').hidden=rows.length>0;
+ $('rep').innerHTML=rows.map(a=>{const b=a.ca-a.co;return `<tr><td>${esc(a.n)}</td><td>${a.q}</td><td>${fmt(a.ca)}</td><td>${fmt(a.co)}</td><td class="${b<0?'neg':'pos'}">${fmt(b)}</td><td>${a.ca?Math.round(b/a.ca*1000)/10:0} %</td></tr>`}).join('')}
+$('period').onchange=drawR;
+$('reset').onclick=()=>{if(confirm("Effacer tout l'historique des ventes ? Cette action est définitive.")){S=[];save();drawR()}};
+// caméra
+let qr=null,last='',lastT=0;
+async function closeCam(){if(qr){try{await qr.stop();qr.clear()}catch(e){}qr=null}$('cam').hidden=true}
+function camCode(c){const n=Date.now();if(c===last&&n-lastT<1500)return;last=c;lastT=n;
+ if(!P[c]){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
+ $('addUnknown').hidden=true;const q=Math.max(1,parseInt($('qty').value)||1);$('qty').value=1;add(c,q);say(P[c].name+' ajouté.')}
+$('camBtn').onclick=async()=>{
+ if(!window.Html5Qrcode){say('Le lecteur caméra ne s\'est pas chargé. Vérifiez votre connexion internet.',true);return}
+ await closeCam();$('cam').hidden=false;const F=Html5QrcodeSupportedFormats;
+ qr=new Html5Qrcode('reader',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.QR_CODE]});
+ try{await qr.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:160}},camCode,()=>{});say('Caméra active. Visez un code-barres.')}
+ catch(e){say('Caméra inaccessible. Autorisez l\'accès à la caméra dans les réglages du navigateur (la page doit être en https).',true);await closeCam()}};
+$('camClose').onclick=closeCam;
+// téléphone relié (PeerJS)
+let peer=null,conn=null,pq=null,pLast='',pT=0;
+function remote(c){if(!Object.prototype.hasOwnProperty.call(P,c)){unknown=c;say('Code '+c+' inconnu (envoyé par le téléphone). Ajoutez ce produit.',true);$('addUnknown').hidden=false;return{ok:false}}
+ $('addUnknown').hidden=true;add(c,1);say(P[c].name+' ajouté depuis le téléphone.');return{ok:true,n:P[c].name,p:fmt(P[c].sell)}}
+$('linkBtn').onclick=()=>{
+ if(!window.Peer){say('La connexion téléphone ne s’est pas chargée. Vérifiez internet.',true);return}
+ $('link').hidden=false;if(peer)return;
+ const open=()=>{const c=String(Math.floor(100000+Math.random()*900000));peer=new Peer('caisse-'+c);
+  peer.on('open',()=>{$('lcode').textContent=c;$('llink').textContent='Lien direct : '+location.origin+location.pathname+'?scan='+c;$('lst').textContent='En attente du téléphone…'});
+  peer.on('connection',cn=>{conn=cn;cn.on('open',()=>{$('lst').textContent='Téléphone connecté ✓'});
+   cn.on('data',d=>{if(d&&d.t==='code'&&typeof d.c==='string')cn.send(Object.assign({t:'ack',c:d.c},remote(d.c.trim())))});
+   cn.on('close',()=>{$('lst').textContent='Téléphone déconnecté. Rouvrez le mode téléphone.'})});
+  peer.on('error',e=>{if(e.type==='unavailable-id'){peer.destroy();peer=null;open()}else $('lst').textContent='Erreur de connexion : '+e.type})};
+ open()};
+$('lClose').onclick=()=>{$('link').hidden=true};
+function phSay(t,ok){$('phmsg').textContent=t;$('phmsg').className='msg'+(ok===false?' err':'')}
+async function phStop(){if(pq){try{await pq.stop();pq.clear()}catch(e){}pq=null}if(peer){try{peer.destroy()}catch(e){}peer=null}conn=null;$('ph').hidden=true}
+async function phStart(code){
+ if(!window.Peer||!window.Html5Qrcode){alert('Chargement impossible. Vérifiez votre connexion internet.');return}
+ $('ph').hidden=false;phSay('Connexion à la caisse…');
+ if(peer){try{peer.destroy()}catch(e){}}
+ peer=new Peer();
+ peer.on('open',()=>{conn=peer.connect('caisse-'+code,{reliable:true});
+  conn.on('open',async()=>{phSay('Connecté à la caisse. Visez un code-barres.');
+   const F=Html5QrcodeSupportedFormats;pq=new Html5Qrcode('phreader',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.QR_CODE]});
+   try{await pq.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:160}},c=>{const n=Date.now();if(c===pLast&&n-pT<2000)return;pLast=c;pT=n;conn.send({t:'code',c})},()=>{})}
+   catch(e){phSay('Caméra inaccessible. Autorisez la caméra (page en https://).',false)}});
+  conn.on('data',d=>{if(d&&d.t==='ack')phSay(d.ok?'✓ '+d.n+' — '+d.p:'✗ Code '+d.c+' inconnu sur la caisse',d.ok)});
+  conn.on('close',()=>phSay('Connexion perdue. Fermez puis reconnectez-vous.',false))});
+ peer.on('error',e=>phSay('Impossible de joindre la caisse ('+e.type+'). Vérifiez le code.',false))}
+$('phBtn').onclick=()=>{const c=prompt('Code affiché sur la caisse (6 chiffres) :');if(c&&/^\d{6}$/.test(c.trim()))phStart(c.trim());else if(c)alert('Le code doit avoir 6 chiffres.')};
+$('phClose').onclick=phStop;
+{const m=location.search.match(/scan=(\d{6})/);if(m)phStart(m[1])}$('addUnknown').addEventListener('click',closeCam);
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',closeCam));
+drawCart();drawQuick();$('scan').focus();
+</script>
+</body>
+</html>
