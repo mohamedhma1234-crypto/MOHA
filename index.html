@@ -63,6 +63,36 @@ tbody tr[data-s]{cursor:pointer}
 .cam{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:12px;max-width:420px}.cam button{margin-top:8px}
 #ph{position:fixed;inset:0;z-index:50;background:var(--bg);padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));overflow:auto}#ph h2{margin:0 0 8px;font-size:20px}#ph button{margin-top:12px}#phreader{width:100%;max-width:420px}
 @media (max-width:640px){.pos-top,.mid{grid-template-columns:1fr}.keys{grid-template-columns:repeat(2,1fr)}}
+.tk{background:#000;border:2px solid #4a0a5e;border-radius:6px;overflow:hidden;color:#fff;font-family:Arial,sans-serif}
+.tk-head{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:linear-gradient(#6a0f8a,#3a0550);padding:6px 12px;color:#fff}
+.tk-logo{font-size:26px;letter-spacing:2px}.tk-no{color:#ffd54a;font-weight:700}.tk-cl b{background:#000;color:#ffe45e;padding:4px 18px;margin-left:8px;font-size:20px}.tk-date{margin-left:auto;color:#ffe45e}
+.tk-top{display:grid;grid-template-columns:minmax(210px,270px) 1fr;background:#000;border-top:1px solid #333}
+.tk-left{background:linear-gradient(#240430,#5a0a78);padding:8px 12px;font-size:14px;display:grid;gap:4px;color:#fff;font-variant-numeric:tabular-nums}
+.tk-left div{display:flex;justify-content:space-between;align-items:center;gap:8px}.tk-left b{color:#ffe45e}.tk-left input{width:100px;padding:1px 6px;font-size:14px;background:#000;color:#ffe45e;border:1px solid #666;text-align:right;border-radius:2px}
+.tk-total{display:flex;align-items:center;justify-content:space-between;padding:6px 18px;gap:12px;border-left:1px solid #fff}
+.tk-total span{color:#19d14d;font-size:clamp(14px,2.4vw,24px);font-weight:700}
+.tk-total b{color:#22ff3d;font-family:"Courier New",monospace;font-size:clamp(40px,9vw,92px);line-height:1;letter-spacing:2px;font-variant-numeric:tabular-nums;text-shadow:0 0 8px #0a6}
+.tk-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(#a0189a,#6a0f8a);padding:6px 12px}
+.tk-bar input{padding:4px 8px;border:1px solid #fff;border-radius:2px;background:#fff;color:#000;font-size:18px;font-weight:700;text-align:right;width:150px;font-family:Arial}
+.tk-bar #scan{flex:1;min-width:180px;text-align:left;width:auto;font-weight:400}
+.tk-bar label{color:#fff;display:flex;align-items:center;gap:6px;font-weight:700}
+.tk-keys,.tk-fk{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:2px;background:#000;padding:2px}
+.tk-keys button,.tk-fk button{font:inherit;font-size:12px;font-weight:700;padding:8px 4px;border:1px solid #000;border-radius:0;cursor:pointer;color:#fff;margin:0}
+.c-ins{background:#5d6c7c}.c-del{background:#b01cb0}.c-plus{background:#168a16}.c-minus{background:#1010c0}.c-prix{background:#e8e8e8;color:#222!important}.c-qty{background:#f0a020;color:#222!important}.c-ok{background:#168f8f}
+.f1{background:#1a7a3a}.f2{background:#9a5a10}.f3{background:#2030a0}.f4{background:#7a2a9a}.f5{background:#1a8a8a}.f6{background:#555}
+.tk-tbl{background:#000;max-height:360px;min-height:200px;overflow:auto}
+.tk-tbl table{width:100%;border-collapse:separate;border-spacing:0 2px;font-variant-numeric:tabular-nums;font-size:17px}
+.tk-tbl th{background:#e6e6e6;color:#000;text-align:left;font-size:13px;padding:2px 6px;position:sticky;top:0;border:none}
+.tk-tbl td{padding:6px 8px;border:none;white-space:nowrap}
+.tk-tbl td.d{background:#18e8e8;color:#10206a;text-align:left;font-family:"Courier New",monospace;font-weight:700}
+.tk-tbl td.q{background:#25e025;color:#064006;text-align:right;font-family:"Courier New",monospace}
+.tk-tbl td.p{background:#ffff1a;color:#0a2a8a;text-align:right;font-family:"Courier New",monospace}
+.tk-tbl td.t{background:#a9c4ec;color:#10206a;text-align:right;font-family:"Courier New",monospace}
+.tk-tbl tr.sel td{background:#2f8cf0;color:#fff}
+.tk-tbl .msg{color:#bbb;padding:8px}
+.tk-tools{display:flex;gap:6px;flex-wrap:wrap;padding:6px 8px;background:#12081a}
+.tk-tools button{font:inherit;font-size:13px;padding:6px 10px;border-radius:4px;border:1px solid #9a6bb5;background:#2a1238;color:#fff;cursor:pointer}
+@media (max-width:700px){.tk-top{grid-template-columns:1fr}.tk-total{border-left:none}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -78,38 +108,54 @@ tbody tr[data-s]{cursor:pointer}
 </header>
 <main>
 <section id="caisse">
- <div class="pos-top">
-  <div class="side">
-   <div class="box"><small>Articles</small><b id="nb">0</b></div>
-   <div class="box"><small>Montant reçu (DA)</small><input id="recu" type="number" min="0" step="any"></div>
-   <div class="box"><small>Rendu</small><b id="rendu">0 DA</b></div>
+ <div class="tk">
+  <div class="tk-head"><b class="tk-logo">TICKET</b><span id="tkno" class="tk-no">V-0001</span><span class="tk-cl">Client : <b>VENTE AU COMPTOIR</b></span><span id="tkdate" class="tk-date"></span></div>
+  <div class="tk-top">
+   <div class="tk-left">
+    <div>Total brut ... = <b id="brut">0.00</b></div>
+    <div><label for="rem">Remise ...... =</label><input id="rem" type="number" min="0" step="any" value="0"></div>
+    <div><label for="recu">Reçu ........ =</label><input id="recu" type="number" min="0" step="any"></div>
+    <div>Rendu ....... = <b id="rendu">0.00</b></div>
+    <div>Articles ..... = <b id="nb">0</b></div>
+   </div>
+   <div class="tk-total"><span>TOTAL À PAYER</span><b id="total">0.00</b></div>
   </div>
-  <div class="disp"><small>Total à payer</small><b id="total">0 DA</b></div>
- </div>
- <div class="entry">
-  <input id="scan" class="scan" placeholder="Scannez un code-barres ou tapez-le, puis Entrée" autocomplete="off" inputmode="numeric">
-  <label>Quantité <input id="qty" type="number" min="1" value="1"></label>
-  <button id="camBtn" class="p" type="button">Scanner avec la caméra</button>
-  <button id="linkBtn" class="s" type="button">Relier un téléphone</button>
-  <button id="phBtn" class="s" type="button">Mode téléphone</button>
+  <div class="tk-bar">
+   <input id="scan" placeholder="Code-barres puis Entrée" autocomplete="off" inputmode="numeric">
+   <label>QUANTITÉ = <input id="qty" type="number" min="0" step="any" value="1"></label>
+   <label>PRIX = <input id="prix" type="number" min="0" step="any"></label>
+  </div>
+  <div class="tk-keys">
+   <button id="kIns" class="c-ins" type="button">[Inser] INSERTION</button>
+   <button id="kDel" class="c-del" type="button">[Suppr] SUPPRIME ARTICLE</button>
+   <button id="kPlus" class="c-plus" type="button">[+] AUGMENTE QUANTITÉ</button>
+   <button id="kMinus" class="c-minus" type="button">[-] DIMINUE QUANTITÉ</button>
+   <button id="kPrix" class="c-prix" type="button">[/] CHANGE PRIX</button>
+   <button id="kQty" class="c-qty" type="button">[*] CHANGE QUANTITÉ</button>
+   <button id="kApply" class="c-ok" type="button">[ENTRÉE] VALIDER</button>
+  </div>
+  <div class="tk-tbl"><table><thead><tr><th>DESIGNATION</th><th>QUANTITE</th><th>PRIX</th><th>TOTAL</th></tr></thead><tbody id="cart"></tbody></table>
+   <p id="emptyCart" class="msg">Le panier est vide. Scannez un article pour commencer.</p></div>
+  <div class="tk-fk">
+   <button id="fPay" class="f1" type="button">F4 : PAIEMENT</button>
+   <button id="fArt" class="f2" type="button">F7 : ARTICLES</button>
+   <button id="fRecall" class="f3" type="button">F2 : RAPPEL ATTENTE</button>
+   <button id="fHold" class="f4" type="button">F8 : EN ATTENTE</button>
+   <button id="fOk" class="f5" type="button">F9 : VALIDER LA VENTE</button>
+   <button id="fClear" class="f6" type="button">F11 : SUPPRIMER</button>
+  </div>
+  <div class="tk-tools">
+   <button id="camBtn" type="button">Scanner avec la caméra</button>
+   <button id="linkBtn" type="button">Relier un téléphone</button>
+   <button id="phBtn" type="button">Mode téléphone</button>
+  </div>
  </div>
  <p id="msg" class="msg" role="status"></p>
  <button id="addUnknown" class="s" hidden>Ajouter ce produit</button>
  <div id="cam" class="cam" hidden><div id="reader"></div><button id="camClose" class="s" type="button">Fermer la caméra</button></div>
  <div id="link" class="cam" hidden><b>Relier un téléphone</b><p style="margin:6px 0">Sur le téléphone, ouvrez ce site, appuyez sur « Mode téléphone » et saisissez ce code :</p><div id="lcode" style="font-size:36px;font-weight:700;letter-spacing:4px">······</div><p class="msg" id="llink" style="word-break:break-all"></p><p id="lst" class="msg">Création du code…</p><button id="lClose" class="s" type="button">Masquer</button></div>
  <div id="ph" hidden><h2>Mode téléphone</h2><p id="phmsg" class="msg" role="status"></p><div id="phreader"></div><button id="phClose" class="p" type="button">Arrêter et fermer</button></div>
- <div class="mid">
-  <div class="tbl"><table><thead><tr><th>N°</th><th>Code</th><th>Désignation</th><th>P.U</th><th>Qté</th><th>Montant</th></tr></thead><tbody id="cart"></tbody></table>
-   <p id="emptyCart" class="msg" style="padding:0 10px">Le panier est vide. Scannez un article pour commencer.</p></div>
-  <div class="keys">
-   <button id="kPlus" class="k1">+ Quantité</button>
-   <button id="kMinus" class="k2">− Quantité</button>
-   <button id="kDel" class="k3">Supprimer la ligne</button>
-   <button id="clear" class="k4">Vider le panier</button>
-   <button id="pay" class="k5">Encaisser</button>
-  </div>
- </div>
- <div class="quick" id="quick"></div>
+ 
 </section>
 
 <section id="produits" hidden>
@@ -160,36 +206,64 @@ function tab(t){['caisse','produits','rapports'].forEach(x=>{$(x).hidden=x!==t})
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 
 // caisse
-let sel='',T=0;
+let sel='',T=0,cp={},held=[];
+const hasP=c=>Object.prototype.hasOwnProperty.call(P,c);
+const price=c=>cp[c]!==undefined?cp[c]:P[c].sell;
+const n2=n=>(Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
 function say(t,err){$('msg').textContent=t;$('msg').className='msg'+(err?' err':'')}
-function add(c,q){if(!c||!P[c])return;cart[c]=(cart[c]||0)+q;if(cart[c]<=0)delete cart[c];sel=cart[c]?c:'';drawCart()}
-function rendu(){const r=parseFloat($('recu').value)||0;$('rendu').textContent=!r?'0 DA':r<T?'Il manque '+fmt(T-r):fmt(r-T)}
+function add(c,q){if(!c||!hasP(c))return;cart[c]=(cart[c]||0)+q;if(cart[c]<=0){delete cart[c];delete cp[c]}sel=cart[c]?c:'';drawCart()}
+function ticketNo(){return 'V-'+String(new Set(S.map(x=>x.t)).size+1).padStart(4,'0')}
+function totals(){let b=0,nb=0;Object.keys(cart).forEach(c=>{b+=price(c)*cart[c];nb+=cart[c]});const r=Math.min(Math.max(parseFloat($('rem').value)||0,0),b);return{b,nb,r,net:b-r}}
+function rendu(){const t=totals(),g=parseFloat($('recu').value)||0;$('rendu').textContent=!g?'0.00':g<t.net?'Il manque '+n2(t.net-g):n2(g-t.net)}
 function drawCart(){
- const codes=Object.keys(cart);let tot=0,nb=0;
- $('cart').innerHTML=codes.map((c,i)=>{const p=P[c],q=cart[c];tot+=p.sell*q;nb+=q;
-  return `<tr data-s="${esc(c)}" class="${c===sel?'sel':''}"><td>${i+1}</td><td>${esc(c)}</td><td style="text-align:left">${esc(p.name)}</td><td>${fmt(p.sell)}</td><td>${q}</td><td>${fmt(p.sell*q)}</td></tr>`}).join('');
- T=tot;$('emptyCart').hidden=codes.length>0;$('total').textContent=fmt(tot);$('nb').textContent=nb;rendu()}
-function drawQuick(){
- const n={};S.forEach(x=>n[x.c]=(n[x.c]||0)+x.q);
- const k=Object.keys(P).sort((a,b)=>(n[b]||0)-(n[a]||0)).slice(0,12);
- $('quick').innerHTML=k.map(c=>`<button data-q="${esc(c)}">${esc(P[c].name)}<small>${fmt(P[c].sell)}</small></button>`).join('')}
-$('quick').onclick=e=>{const b=e.target.closest('button[data-q]');if(b){add(b.dataset.q,1);say(P[b.dataset.q].name+' ajouté.')}};
+ const codes=Object.keys(cart);
+ $('cart').innerHTML=codes.map(c=>{const p=P[c],q=cart[c],pr=price(c);
+  return `<tr data-s="${esc(c)}" class="${c===sel?'sel':''}"><td class="d">${esc(p.name)}</td><td class="q">${n2(q)}</td><td class="p">${n2(pr)}</td><td class="t">${n2(pr*q)}</td></tr>`}).join('');
+ const t=totals();T=t.net;
+ $('emptyCart').hidden=codes.length>0;$('total').textContent=n2(t.net);$('brut').textContent=n2(t.b);$('nb').textContent=n2(t.nb);
+ $('qty').value=sel?cart[sel]:1;$('prix').value=sel?price(sel):'';$('tkno').textContent=ticketNo();rendu()}
+function drawQuick(){}
+function clearCart(){cart={};cp={};sel='';$('rem').value=0;drawCart();$('scan').focus()}
+function delSel(){if(sel){delete cart[sel];delete cp[sel];sel='';drawCart()}}
+function applyFields(){if(!sel)return;const q=parseFloat($('qty').value),p=parseFloat($('prix').value);
+ if(q>0)cart[sel]=q;if(!isNaN(p)&&p>=0)cp[sel]=p;drawCart()}
+function hold(){if(!Object.keys(cart).length){say('Rien à mettre en attente.',true);return}
+ held.push({cart,cp,rem:$('rem').value});cart={};cp={};sel='';$('rem').value=0;drawCart();say('Vente mise en attente ('+held.length+').')}
+function recall(){if(Object.keys(cart).length){say('Terminez ou videz la vente en cours avant de rappeler une vente en attente.',true);return}
+ const h=held.pop();if(!h){say('Aucune vente en attente.',true);return}
+ cart=h.cart;cp=h.cp;$('rem').value=h.rem;sel='';drawCart();say('Vente rappelée.')}
+function pay(){const codes=Object.keys(cart);if(!codes.length){say('Le panier est vide.',true);return}
+ const t=totals(),f=t.b?t.net/t.b:1,ts=Date.now();
+ codes.forEach(c=>{const p=P[c],q=cart[c];p.stock-=q;S.push({t:ts,c,n:p.name,q,b:p.buy,s:price(c)*f})});
+ save();cart={};cp={};sel='';$('rem').value=0;$('recu').value='';drawCart();say('Vente enregistrée : '+n2(t.net)+' DA.');$('scan').focus()}
 $('cart').onclick=e=>{const r=e.target.closest('tr[data-s]');if(r){sel=r.dataset.s;drawCart()}};
-$('recu').oninput=rendu;
+$('qty').onkeydown=$('prix').onkeydown=e=>{if(e.key==='Enter'){applyFields();$('scan').focus()}};
+$('rem').oninput=drawCart;$('recu').oninput=rendu;
+$('kIns').onclick=()=>$('scan').focus();$('kDel').onclick=delSel;
 $('kPlus').onclick=()=>add(sel,1);$('kMinus').onclick=()=>add(sel,-1);
-$('kDel').onclick=()=>{if(sel){delete cart[sel];sel='';drawCart()}};
+$('kPrix').onclick=()=>{$('prix').focus();$('prix').select()};$('kQty').onclick=()=>{$('qty').focus();$('qty').select()};
+$('kApply').onclick=applyFields;
+$('fPay').onclick=()=>{$('recu').focus();$('recu').select()};$('fArt').onclick=()=>tab('produits');
+$('fRecall').onclick=recall;$('fHold').onclick=hold;$('fOk').onclick=pay;$('fClear').onclick=clearCart;
 $('scan').onkeydown=e=>{if(e.key!=='Enter')return;
  const c=e.target.value.trim();e.target.value='';if(!c)return;
  $('addUnknown').hidden=true;
- if(!P[c]){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
- const q=Math.max(1,parseInt($('qty').value)||1);$('qty').value=1;
- add(c,q);say(P[c].name+' ajouté.')};
+ if(!hasP(c)){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
+ add(c,1);say(P[c].name+' ajouté.')};
 $('addUnknown').onclick=()=>{tab('produits');$('fCode').value=unknown;$('fName').focus()};
-$('clear').onclick=()=>{cart={};sel='';drawCart();$('scan').focus()};
-$('pay').onclick=()=>{const codes=Object.keys(cart);if(!codes.length){say('Le panier est vide.',true);return}
- const t=Date.now();let tot=0;
- codes.forEach(c=>{const p=P[c],q=cart[c];tot+=p.sell*q;p.stock-=q;S.push({t,c,n:p.name,q,b:p.buy,s:p.sell})});
- save();cart={};sel='';$('recu').value='';drawCart();drawQuick();say('Vente enregistrée : '+fmt(tot)+'.');$('scan').focus()};
+document.addEventListener('keydown',e=>{
+ if($('caisse').hidden||!$('ph').hidden)return;
+ const a=document.activeElement,inField=a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName),inScan=a===$('scan'),free=!inField||(inScan&&!a.value);
+ const fk={F2:recall,F4:()=>{$('recu').focus();$('recu').select()},F7:()=>tab('produits'),F8:hold,F9:pay,F11:clearCart};
+ if(fk[e.key]){e.preventDefault();fk[e.key]();return}
+ if(!free)return;
+ if(e.key==='Insert'){e.preventDefault();$('scan').focus()}
+ else if(e.key==='Delete'){e.preventDefault();delSel()}
+ else if(e.key==='+'){e.preventDefault();add(sel,1)}
+ else if(e.key==='-'){e.preventDefault();add(sel,-1)}
+ else if(e.key==='/'){e.preventDefault();$('prix').focus();$('prix').select()}
+ else if(e.key==='*'){e.preventDefault();$('qty').focus();$('qty').select()}});
+const clock=()=>{$('tkdate').textContent='Date : '+new Date().toLocaleString('fr-FR')};clock();setInterval(clock,1000);
 
 // produits
 let editing='';
@@ -225,7 +299,7 @@ let qr=null,last='',lastT=0;
 async function closeCam(){if(qr){try{await qr.stop();qr.clear()}catch(e){}qr=null}$('cam').hidden=true}
 function camCode(c){const n=Date.now();if(c===last&&n-lastT<1500)return;last=c;lastT=n;
  if(!P[c]){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
- $('addUnknown').hidden=true;const q=Math.max(1,parseInt($('qty').value)||1);$('qty').value=1;add(c,q);say(P[c].name+' ajouté.')}
+ $('addUnknown').hidden=true;add(c,1);say(P[c].name+' ajouté.')}
 $('camBtn').onclick=async()=>{
  if(!window.Html5Qrcode){say('Le lecteur caméra ne s\'est pas chargé. Vérifiez votre connexion internet.',true);return}
  await closeCam();$('cam').hidden=false;const F=Html5QrcodeSupportedFormats;
