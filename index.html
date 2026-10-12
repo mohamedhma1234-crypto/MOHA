@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Caisse Supérette</title>
+<title>MOHA CAISSE</title>
 <style>
 :root{--bg:#f2f5f3;--card:#fff;--ink:#16241f;--mute:#5d6f67;--line:#d8e0dc;--acc:#1c7a4d;--accInk:#fff;--warn:#b4531a;--bad:#b3261e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -93,18 +93,33 @@ tbody tr[data-s]{cursor:pointer}
 .tk-tools{display:flex;gap:6px;flex-wrap:wrap;padding:6px 8px;background:#12081a}
 .tk-tools button{font:inherit;font-size:13px;padding:6px 10px;border-radius:4px;border:1px solid #9a6bb5;background:#2a1238;color:#fff;cursor:pointer}
 @media (max-width:700px){.tk-top{grid-template-columns:1fr}.tk-total{border-left:none}}
+body.cx{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body.cx header{padding:6px 12px}
+body.cx main{max-width:none;width:100%;padding:6px;flex:1;min-height:0;display:flex;flex-direction:column}
+body.cx #caisse{flex:1;min-height:0;display:flex;flex-direction:column}
+body.cx .tk{flex:1;min-height:0;display:flex;flex-direction:column}
+body.cx .tk-tbl{flex:1;min-height:80px;max-height:none}
+body.cx .tk-tbl table{font-size:clamp(17px,1.9vw,28px)}
+body.cx .tk-total b{font-size:clamp(48px,10vw,150px)}
+body.cx .msg{margin:2px 0}
+#lockBtn{font:inherit;padding:9px 16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer}
+#lock{position:fixed;inset:0;z-index:100;background:#1b0a26;display:flex;align-items:center;justify-content:center;padding:16px}
+.lk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;width:100%;max-width:340px;display:grid;gap:10px}
+.lk h2{margin:0;font-size:20px}.lk input{font-size:22px;text-align:center;letter-spacing:6px;width:100%}.lk .msg{margin:0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
-<body>
+<body class="cx">
 <header>
-  <h1>Caisse Supérette</h1>
+  <h1>MOHA CAISSE</h1>
   <nav role="tablist">
     <button role="tab" data-t="caisse" aria-selected="true">Caisse</button>
     <button role="tab" data-t="produits" aria-selected="false">Produits</button>
     <button role="tab" data-t="rapports" aria-selected="false">Rapports</button>
   </nav>
+  <button id="lockBtn" type="button">🔒 Verrouiller</button>
 </header>
 <main>
 <section id="caisse">
@@ -142,7 +157,9 @@ tbody tr[data-s]{cursor:pointer}
    <button id="fRecall" class="f3" type="button">F2 : RAPPEL ATTENTE</button>
    <button id="fHold" class="f4" type="button">F8 : EN ATTENTE</button>
    <button id="fOk" class="f5" type="button">F9 : VALIDER LA VENTE</button>
-   <button id="fClear" class="f6" type="button">F11 : SUPPRIMER</button>
+   <button id="fClear" class="f6" type="button">F6 : VIDER LE PANIER</button>
+   <button id="fFull" class="f3" type="button">F11 : PLEIN ÉCRAN</button>
+   <button id="fLock" class="f4" type="button">F12 : VERROUILLER</button>
   </div>
   <div class="tk-tools">
    <button id="camBtn" type="button">Scanner avec la caméra</button>
@@ -153,7 +170,7 @@ tbody tr[data-s]{cursor:pointer}
  <p id="msg" class="msg" role="status"></p>
  <button id="addUnknown" class="s" hidden>Ajouter ce produit</button>
  <div id="cam" class="cam" hidden><div id="reader"></div><button id="camClose" class="s" type="button">Fermer la caméra</button></div>
- <div id="link" class="cam" hidden><b>Relier un téléphone</b><p style="margin:6px 0">Sur le téléphone, ouvrez ce site, appuyez sur « Mode téléphone » et saisissez ce code :</p><div id="lcode" style="font-size:36px;font-weight:700;letter-spacing:4px">······</div><p class="msg" id="llink" style="word-break:break-all"></p><p id="lst" class="msg">Création du code…</p><button id="lClose" class="s" type="button">Masquer</button></div>
+ <div id="link" class="cam" hidden><b>Relier un téléphone</b><p style="margin:6px 0">Sur le téléphone, scannez ce QR code avec l’appareil photo : la connexion se fait toute seule. Sinon, ouvrez ce site, appuyez sur « Mode téléphone » et saisissez ce code :</p><div id="lcode" style="font-size:36px;font-weight:700;letter-spacing:4px">······</div><div id="lqr" style="margin:8px 0"></div><p class="msg" id="llink" style="word-break:break-all"></p><p id="lst" class="msg">Création du code…</p><button id="lClose" class="s" type="button">Masquer</button></div>
  <div id="ph" hidden><h2>Mode téléphone</h2><p id="phmsg" class="msg" role="status"></p><div id="phreader"></div><button id="phClose" class="p" type="button">Arrêter et fermer</button></div>
  
 </section>
@@ -168,6 +185,8 @@ tbody tr[data-s]{cursor:pointer}
       <label>Prix de vente (DA)<input id="fSell" type="number" min="0" step="any"></label>
       <label>Stock<input id="fStock" type="number" min="0" step="1" value="0"></label>
     </div>
+    <button id="fScan" class="s" type="button">Scanner le code-barres avec la caméra</button>
+    <div id="cam2" class="cam" hidden><div id="reader2"></div><button id="cam2Close" class="s" type="button">Fermer la caméra</button></div>
     <p id="fMsg" class="msg" role="status"></p>
     <button id="fSave" class="p">Enregistrer le produit</button>
   </div>
@@ -181,7 +200,9 @@ tbody tr[data-s]{cursor:pointer}
   <div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
     <label for="period">Période</label>
     <select id="period"><option value="1">Aujourd'hui</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option><option value="0">Tout</option></select>
-    <button id="reset" class="s" style="margin-left:auto">Effacer l'historique des ventes</button>
+    <button id="pinG" class="s" type="button" style="margin-left:auto">Code gérant…</button>
+    <button id="pinC" class="s" type="button">Code caisse…</button>
+    <button id="reset" class="s">Effacer l'historique des ventes</button>
   </div>
   <div class="kpi" id="kpi"></div>
   <div class="card tw">
@@ -190,6 +211,12 @@ tbody tr[data-s]{cursor:pointer}
   </div>
 </section>
 </main>
+<div id="lock" hidden><div class="lk"><h2 id="lkT">Caisse verrouillée</h2><p id="lkM" class="msg" role="status"></p>
+ <input id="pin1" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Code PIN">
+ <input id="pin2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Confirmer le code" hidden>
+ <button id="lkOk" class="p" type="button">Déverrouiller</button>
+ <button id="lkDel" class="s" type="button" hidden>Supprimer le code</button>
+ <button id="lkNo" class="s" type="button" hidden>Annuler</button></div></div>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>(Math.round(n*100)/100).toLocaleString('fr-FR')+' DA';
@@ -200,10 +227,10 @@ const save=()=>{try{localStorage.setItem('cs_p',JSON.stringify(P));localStorage.
 let unknown='';
 
 // onglets
-function tab(t){['caisse','produits','rapports'].forEach(x=>{$(x).hidden=x!==t});
+function tab(t){['caisse','produits','rapports'].forEach(x=>{$(x).hidden=x!==t});document.body.classList.toggle('cx',t==='caisse');
  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
  if(t==='caisse'){drawQuick();$('scan').focus()}if(t==='produits')drawP();if(t==='rapports')drawR()}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
 
 // caisse
 let sel='',T=0,cp={},held=[];
@@ -243,18 +270,20 @@ $('kIns').onclick=()=>$('scan').focus();$('kDel').onclick=delSel;
 $('kPlus').onclick=()=>add(sel,1);$('kMinus').onclick=()=>add(sel,-1);
 $('kPrix').onclick=()=>{$('prix').focus();$('prix').select()};$('kQty').onclick=()=>{$('qty').focus();$('qty').select()};
 $('kApply').onclick=applyFields;
-$('fPay').onclick=()=>{$('recu').focus();$('recu').select()};$('fArt').onclick=()=>tab('produits');
+$('fPay').onclick=()=>{$('recu').focus();$('recu').select()};$('fArt').onclick=()=>go('produits');
 $('fRecall').onclick=recall;$('fHold').onclick=hold;$('fOk').onclick=pay;$('fClear').onclick=clearCart;
+const fullscreen=()=>{if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})};
+$('fFull').onclick=fullscreen;
 $('scan').onkeydown=e=>{if(e.key!=='Enter')return;
  const c=e.target.value.trim();e.target.value='';if(!c)return;
  $('addUnknown').hidden=true;
  if(!hasP(c)){unknown=c;say('Code '+c+' inconnu. Ajoutez ce produit pour le vendre.',true);$('addUnknown').hidden=false;return}
  add(c,1);say(P[c].name+' ajouté.')};
-$('addUnknown').onclick=()=>{tab('produits');$('fCode').value=unknown;$('fName').focus()};
+$('addUnknown').onclick=()=>go('produits',()=>{$('fCode').value=unknown;$('fName').focus()});
 document.addEventListener('keydown',e=>{
- if($('caisse').hidden||!$('ph').hidden)return;
+ if($('caisse').hidden||!$('ph').hidden||!$('lock').hidden)return;
  const a=document.activeElement,inField=a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName),inScan=a===$('scan'),free=!inField||(inScan&&!a.value);
- const fk={F2:recall,F4:()=>{$('recu').focus();$('recu').select()},F7:()=>tab('produits'),F8:hold,F9:pay,F11:clearCart};
+ const fk={F2:recall,F4:()=>{$('recu').focus();$('recu').select()},F7:()=>go('produits'),F8:hold,F9:pay,F6:clearCart};
  if(fk[e.key]){e.preventDefault();fk[e.key]();return}
  if(!free)return;
  if(e.key==='Insert'){e.preventDefault();$('scan').focus()}
@@ -272,7 +301,7 @@ function drawP(){const k=Object.keys(P);$('emptyP').hidden=k.length>0;
   return `<tr><td>${esc(p.name)}</td><td>${esc(c)}</td><td>${fmt(p.buy)}</td><td>${fmt(p.sell)}</td><td class="${m<0?'neg':'pos'}">${fmt(m)}</td><td class="${p.stock<=0?'neg':''}">${p.stock}</td><td><button class="s" data-e="${esc(c)}">Modifier</button> <button class="x" data-d="${esc(c)}">Supprimer</button></td></tr>`}).join('')}
 $('plist').onclick=e=>{const d=e.target.dataset;
  if(d.e){const p=P[d.e];editing=d.e;$('fCode').value=d.e;$('fName').value=p.name;$('fBuy').value=p.buy;$('fSell').value=p.sell;$('fStock').value=p.stock;$('formTitle').textContent='Modifier le produit';$('fName').focus()}
- if(d.d&&confirm('Supprimer ce produit ? L\'historique des ventes est conservé.')){delete P[d.d];delete cart[d.d];save();drawP()}};
+ if(d.d)askGerant(()=>{if(confirm('Supprimer ce produit ? L’historique des ventes est conservé.')){delete P[d.d];delete cart[d.d];save();drawP()}})};
 $('fSave').onclick=()=>{const c=$('fCode').value.trim(),n=$('fName').value.trim(),b=parseFloat($('fBuy').value),s=parseFloat($('fSell').value),st=parseInt($('fStock').value)||0;
  const m=$('fMsg');m.className='msg err';
  if(!c||!n){m.textContent='Saisissez le code-barres et le nom du produit.';return}
@@ -293,7 +322,7 @@ function drawR(){
  $('emptyR').hidden=rows.length>0;
  $('rep').innerHTML=rows.map(a=>{const b=a.ca-a.co;return `<tr><td>${esc(a.n)}</td><td>${a.q}</td><td>${fmt(a.ca)}</td><td>${fmt(a.co)}</td><td class="${b<0?'neg':'pos'}">${fmt(b)}</td><td>${a.ca?Math.round(b/a.ca*1000)/10:0} %</td></tr>`}).join('')}
 $('period').onchange=drawR;
-$('reset').onclick=()=>{if(confirm("Effacer tout l'historique des ventes ? Cette action est définitive.")){S=[];save();drawR()}};
+$('reset').onclick=()=>askGerant(()=>{if(confirm("Effacer tout l'historique des ventes ? Cette action est définitive.")){S=[];save();drawR()}});
 // caméra
 let qr=null,last='',lastT=0;
 async function closeCam(){if(qr){try{await qr.stop();qr.clear()}catch(e){}qr=null}$('cam').hidden=true}
@@ -309,7 +338,11 @@ $('camBtn').onclick=async()=>{
 $('camClose').onclick=closeCam;
 // téléphone relié (PeerJS)
 let peer=null,conn=null,pq=null,pLast='',pT=0;
-function remote(c){if(!Object.prototype.hasOwnProperty.call(P,c)){unknown=c;say('Code '+c+' inconnu (envoyé par le téléphone). Ajoutez ce produit.',true);$('addUnknown').hidden=false;return{ok:false}}
+function remote(c){
+ if(!$('lock').hidden)return{ok:false,locked:true};
+ if(!$('produits').hidden){formCode(c);return{ok:true,n:hasP(c)?P[c].name:'Code envoyé au formulaire',p:hasP(c)?'existe déjà':'saisissez le nom et les prix'}}
+ if($('caisse').hidden)return{ok:false,locked:true};
+ if(!hasP(c)){unknown=c;say('Code '+c+' inconnu (envoyé par le téléphone). Ajoutez ce produit.',true);$('addUnknown').hidden=false;return{ok:false}}
  $('addUnknown').hidden=true;add(c,1);say(P[c].name+' ajouté depuis le téléphone.');return{ok:true,n:P[c].name,p:fmt(P[c].sell)}}
 function killPeer(){if(peer){try{peer.destroy()}catch(e){}}peer=null;conn=null}
 $('linkBtn').onclick=()=>{
@@ -319,7 +352,7 @@ $('linkBtn').onclick=()=>{
  let tries=0;
  const open=()=>{const c=String(Math.floor(100000+Math.random()*900000));const p=peer=new Peer('caisse-'+c);
   const to=setTimeout(()=>{if(peer===p&&!p.open){$('lst').className='msg err';$('lst').textContent='Impossible de joindre le service de liaison (réseau, VPN ou bloqueur). Essayez un autre réseau, puis recliquez sur Relier un téléphone.'}},10000);
-  p.on('open',()=>{clearTimeout(to);$('lcode').textContent=c;$('llink').textContent='Lien direct : '+location.origin+location.pathname+'?scan='+c;$('lst').className='msg';$('lst').textContent='En attente du téléphone…'});
+  p.on('open',()=>{clearTimeout(to);$('lcode').textContent=c;$('llink').textContent='Lien direct : '+location.origin+location.pathname+'?scan='+c;drawQr(location.origin+location.pathname+'?scan='+c);$('lst').className='msg';$('lst').textContent='En attente du téléphone…'});
   p.on('connection',cn=>{conn=cn;cn.on('open',()=>{$('lst').textContent='Téléphone connecté ✓'});
    cn.on('data',d=>{if(d&&d.t==='code'&&typeof d.c==='string')cn.send(Object.assign({t:'ack',c:d.c},remote(d.c.trim())))});
    cn.on('close',()=>{$('lst').textContent='Téléphone déconnecté. Rouvrez le mode téléphone.'})});
@@ -340,13 +373,70 @@ async function phStart(code){
    const F=Html5QrcodeSupportedFormats;pq=new Html5Qrcode('phreader',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.QR_CODE]});
    try{await pq.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:160}},c=>{const n=Date.now();if(c===pLast&&n-pT<2000)return;pLast=c;pT=n;cn.send({t:'code',c})},()=>{})}
    catch(e){phSay('Caméra inaccessible. Autorisez la caméra (page en https://).',false)}});
-  cn.on('data',d=>{if(d&&d.t==='ack')phSay(d.ok?'✓ '+d.n+' — '+d.p:'✗ Code '+d.c+' inconnu sur la caisse',d.ok)});
+  cn.on('data',d=>{if(d&&d.t==='ack')phSay(d.ok?'✓ '+d.n+' — '+d.p:(d.locked?'✗ Caisse verrouillée ou occupée':'✗ Code '+d.c+' inconnu sur la caisse'),d.ok)});
   cn.on('close',()=>phSay('Connexion perdue. Fermez puis reconnectez-vous.',false))});
  p.on('error',e=>{clearTimeout(t1);phSay(e.type==='peer-unavailable'?'Code introuvable : vérifiez le code et que la caisse est ouverte sur le PC.':'Erreur de connexion ('+e.type+').',false)})}
 $('phBtn').onclick=()=>{const c=prompt('Code affiché sur la caisse (6 chiffres) :');if(c&&/^\d{6}$/.test(c.trim()))phStart(c.trim());else if(c)alert('Le code doit avoir 6 chiffres.')};
 $('phClose').onclick=phStop;
 {const m=location.search.match(/scan=(\d{6})/);if(m)phStart(m[1])}$('addUnknown').addEventListener('click',closeCam);
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',closeCam));
+// codes PIN (gérant / caisse), verrouillage, nom
+const NOM_MAGASIN='MOHA CAISSE',AUTOLOCK_MIN=10;
+document.title=NOM_MAGASIN;document.querySelector('header h1').textContent=NOM_MAGASIN;
+async function h(p){const s='caisse:'+p;if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let x=5381;for(const c of s)x=((x<<5)+x+c.charCodeAt(0))>>>0;return 'd'+x}
+const KG='cs_pin_g',KC='cs_pin_c';
+const getK=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const setK=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
+const hasG=()=>!!getK(KG),hasC=()=>!!getK(KC),anyPin=()=>hasG()||hasC();
+let role='gerant',pending=null,tgt='g',lmode='',fails=0,until=0;
+function lk(mode,t,m){lmode=mode;$('lock').hidden=false;$('lkT').textContent=t;$('lkM').textContent=m||'';$('lkM').className='msg';$('pin1').value='';$('pin2').value='';
+ const nw=mode==='set';$('pin2').hidden=!nw;$('lkDel').hidden=!(nw&&getK(tgt==='g'?KG:KC));$('lkNo').hidden=mode==='unlock';
+ $('lkOk').textContent=mode==='unlock'?'Déverrouiller':mode==='ask'?'Continuer':'Enregistrer';
+ $('pin1').placeholder=nw?'Nouveau code (4 à 8 chiffres)':'Code PIN';$('pin1').focus()}
+function lkErr(t){$('lkM').textContent=t;$('lkM').className='msg err'}
+$('lkOk').onclick=async()=>{
+ const a=$('pin1').value.trim();
+ if(lmode==='set'){
+  if(!/^\d{4,8}$/.test(a)){lkErr('Le code doit avoir 4 à 8 chiffres.');return}
+  if(a!==$('pin2').value.trim()){lkErr('Les deux codes sont différents.');return}
+  const x=await h(a),other=getK(tgt==='g'?KC:KG);
+  if(other&&x===other){lkErr('Le code gérant et le code caisse doivent être différents.');return}
+  setK(tgt==='g'?KG:KC,x);$('lock').hidden=true;say('Code '+(tgt==='g'?'gérant':'caisse')+' enregistré.');return}
+ if(Date.now()<until){lkErr('Trop d’essais. Attendez quelques secondes.');return}
+ const x=await h(a),g=hasG()&&x===getK(KG),c=hasC()&&x===getK(KC);
+ if(lmode==='ask'?g:(g||c)){
+  fails=0;role=g?'gerant':'caisse';$('lock').hidden=true;
+  if(lmode==='ask'){const f=pending;pending=null;if(f)f()}
+  else{if(role==='caisse')tab('caisse');$('scan').focus()}}
+ else if(++fails>=5){until=Date.now()+30000;fails=0;lkErr('Trop d’essais. Attendez 30 secondes.')}
+ else lkErr('Code incorrect.')};
+$('pin1').onkeydown=$('pin2').onkeydown=e=>{if(e.key==='Enter')$('lkOk').click()};
+$('lkDel').onclick=()=>{setK(tgt==='g'?KG:KC,'');$('lock').hidden=true;say('Code supprimé.')};
+$('lkNo').onclick=()=>{$('lock').hidden=true;pending=null};
+function askGerant(cb){if(!hasG()){cb();return}pending=cb;lk('ask','Code gérant','Saisissez le code gérant pour continuer.')}
+function go(t,after){const f=()=>{tab(t);if(after)after()};if(t!=='caisse'&&role!=='gerant'&&hasG()){askGerant(f);return}f()}
+function setCode(w){tgt=w;lk('set',w==='g'?'Code gérant':'Code caisse',w==='g'?'Protège Produits, Rapports et les suppressions. 4 à 8 chiffres.':'Pour utiliser la caisse. 4 à 8 chiffres.')}
+function lockNow(){if(!$('lock').hidden)return;if(!anyPin()){setCode('c');return}role='none';pending=null;closeCam();closeCam2();lk('unlock','Caisse verrouillée','Saisissez votre code.')}
+$('lockBtn').onclick=lockNow;$('fLock').onclick=lockNow;
+$('pinG').onclick=()=>askGerant(()=>setCode('g'));$('pinC').onclick=()=>askGerant(()=>setCode('c'));
+document.addEventListener('keydown',e=>{if(e.key==='F12'){e.preventDefault();lockNow()}});
+let idle;const arm=()=>{clearTimeout(idle);if(anyPin()&&AUTOLOCK_MIN>0)idle=setTimeout(lockNow,AUTOLOCK_MIN*60000)};
+['keydown','mousedown','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,arm,{passive:true}));
+
+// nouveau produit : scan direct du code-barres (caméra ou téléphone relié)
+let q2=null;
+async function closeCam2(){if(q2){try{await q2.stop();q2.clear()}catch(e){}q2=null}$('cam2').hidden=true}
+function formCode(c){$('fCode').value=c;$('fName').focus();$('fMsg').className='msg';$('fMsg').textContent=hasP(c)?'Ce code existe déjà : '+P[c].name+'. Cliquez sur Modifier dans la liste pour le changer.':'Code reçu : '+c+'. Saisissez le nom et les prix.'}
+$('fScan').onclick=async()=>{
+ if(!window.Html5Qrcode){$('fMsg').className='msg err';$('fMsg').textContent='Le lecteur caméra ne s’est pas chargé. Vérifiez internet.';return}
+ await closeCam2();$('cam2').hidden=false;const F=Html5QrcodeSupportedFormats;
+ q2=new Html5Qrcode('reader2',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.QR_CODE]});
+ try{await q2.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:160}},c=>{formCode(c);closeCam2()},()=>{})}
+ catch(e){$('fMsg').className='msg err';$('fMsg').textContent='Caméra inaccessible. Autorisez la caméra (page en https://).';await closeCam2()}};
+$('cam2Close').onclick=closeCam2;
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',closeCam2));
+function drawQr(u){const b=$('lqr');b.innerHTML='';try{if(!window.qrcode||!/^https?:/.test(u))return;const q=qrcode(0,'M');q.addData(u);q.make();b.innerHTML=q.createSvgTag(5,4);const s=b.querySelector('svg');if(s){s.style.background='#fff';s.style.maxWidth='220px';s.style.height='auto'}}catch(e){}}
+arm();if(anyPin()){role='none';lk('unlock','Caisse verrouillée','Saisissez votre code.')}
 drawCart();drawQuick();$('scan').focus();
 </script>
 </body>
