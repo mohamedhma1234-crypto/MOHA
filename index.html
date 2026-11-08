@@ -439,5 +439,25 @@ function drawQr(u){const b=$('lqr');b.innerHTML='';try{if(!window.qrcode||!/^htt
 arm();if(anyPin()){role='none';lk('unlock','Caisse verrouillée','Saisissez votre code.')}
 drawCart();drawQuick();$('scan').focus();
 </script>
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBp2b_-UP-kt8iZbQiUxLbiHhWvkeYf7R8",
+  authDomain: "moha-caisse.firebaseapp.com",
+  projectId: "moha-caisse",
+  storageBucket: "moha-caisse.firebasestorage.app",
+  messagingSenderId: "1070517897900",
+  appId: "1:1070517897900:web:87fe4a7789989fccd0ed09"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+ </script> 
 </body>
+  
 </html>
